@@ -1,0 +1,13 @@
+{
+  "name": "bot-whatsapp-fundarced",
+  "version": "1.0.0",
+  "description": "Middleware para conectar WhatsApp Cloud API con Typebot para Fundarced",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.8",
+    "express": "^4.19.2"
+  }
+}
