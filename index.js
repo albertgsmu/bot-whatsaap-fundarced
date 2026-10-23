@@ -18,14 +18,12 @@ app.get('/webhook', (req, res) => {
   return res.sendStatus(403);
 });
 
-// 2. Recepción de mensajes de WhatsApp
+// 2. Recepción y procesamiento sincrónico de mensajes
 app.post('/webhook', async (req, res) => {
-  const body = req.body;
-  
-  // Responder inmediatamente a Meta para evitar timeouts
-  res.status(200).send('EVENT_RECEIVED');
-
   try {
+    const body = req.body;
+    console.log('Webhook recibido:', JSON.stringify(body));
+
     if (body.object === 'whatsapp_business_account') {
       for (const entry of body.entry) {
         for (const change of entry.changes) {
@@ -44,8 +42,11 @@ app.post('/webhook', async (req, res) => {
         }
       }
     }
+    // Respondemos a Meta con éxito solo cuando todo el proceso terminó correctamente
+    return res.status(200).send('EVENT_RECEIVED');
   } catch (error) {
-    console.error('Error en segundo plano:', error.message);
+    console.error('Error crítico en POST /webhook:', error.response?.data || error.message);
+    return res.status(500).send('Internal Server Error');
   }
 });
 
