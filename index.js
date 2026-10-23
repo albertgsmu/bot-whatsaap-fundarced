@@ -20,10 +20,12 @@ app.get('/webhook', (req, res) => {
 
 // 2. Recepción de mensajes de WhatsApp
 app.post('/webhook', async (req, res) => {
-  try {
-    const body = req.body;
-    console.log('Webhook recibido:', JSON.stringify(body, null, 2));
+  const body = req.body;
+  
+  // Responder inmediatamente a Meta para evitar timeouts
+  res.status(200).send('EVENT_RECEIVED');
 
+  try {
     if (body.object === 'whatsapp_business_account') {
       for (const entry of body.entry) {
         for (const change of entry.changes) {
@@ -41,12 +43,9 @@ app.post('/webhook', async (req, res) => {
           }
         }
       }
-      return res.status(200).send('EVENT_RECEIVED');
     }
-    return res.sendStatus(404);
   } catch (error) {
-    console.error('Error crítico en POST /webhook:', error.message);
-    return res.status(500).send('Internal Server Error');
+    console.error('Error en segundo plano:', error.message);
   }
 });
 
@@ -86,7 +85,6 @@ async function enviarATypebot(senderPhone, messageText) {
           textoRespuesta = '¡Hola! Bienvenido a Fundarced.';
         }
 
-        // Enviar respuesta a WhatsApp
         await axios.post(
           `https://graph.facebook.com/v25.0/${phoneId}/messages`,
           {
